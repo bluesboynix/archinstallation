@@ -16,7 +16,7 @@ The installation is split into three phases:
 
 ## Pre-Installation (Manual)
 
-We recommend using [`cfdisk`](https://man.archlinux.org/man/cfdisk.8) for partitioning the target disk safely.
+Using [`cfdisk`](https://man.archlinux.org/man/cfdisk.8) for partitioning the target disk safely. fdisk also available.
 
 **Partition layout example:**
 
@@ -38,3 +38,11 @@ mount /dev/sdX3 /mnt
 mkdir -p /mnt/boot
 mount /dev/sdX1 /mnt/boot
 
+### Install base packages:
+pacstrap /mnt base base-devel linux linux-headers linux-firmware sudo grub neovim curl git wget
+
+### Generate fstab:
+genfstab -U /mnt >> /mnt/etc/fstab
+
+### Chroot into new system:
+arch-chroot /mnt
