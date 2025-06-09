@@ -1,6 +1,6 @@
 # Arch Linux Installation Scripts
 
-This repository contains scripts and instructions to automate and guide the installation of Arch Linux on UEFI systems with a swap partition.
+My scripts and instructions to automate and guide the installation of Arch Linux.
 
 ---
 
