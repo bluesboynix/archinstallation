@@ -53,3 +53,71 @@ genfstab -U /mnt >> /mnt/etc/fstab
 ```bash
 arch-chroot /mnt
 ```
+
+## Arch Linux Post-chroot Setup Steps
+**Set the Timezone**
+```bash
+ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
+```
+
+**Generate the hardware clock:**
+```bash
+hwclock --systohc
+```
+
+**Localization**
+nvim /etc/locale.gen
+    en_US.UTF-8 UTF-8
+
+**Generate locales:**
+```bash
+locale-gen
+```
+
+**Create /etc/locale.conf and set your LANG:**
+```bash
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+```
+
+**Set Hostname**
+```bash
+echo "myhostname" > /etc/hostname
+```
+
+**Add matching entries in /etc/hosts:**
+```bash
+echo "127.0.0.1   localhost" >> /etc/hosts
+echo "::1         localhost" >> /etc/hosts
+echo "127.0.1.1   myhostname.localdomain myhostname" >> /etc/hosts
+```
+
+**Set Root Password**
+```bash
+passwd
+```
+
+**Install and Configure Bootloader (GRUB)**
+```bash
+pacman -S grub efibootmgr
+```
+
+**Mount EFI partition (if not already mounted), e.g., if EFI is /dev/sda1:**
+```bash
+mkdir /boot/efi
+mount /dev/sda1 /boot/efi
+```
+
+**Install GRUB:**
+```bash
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+```
+
+**Generate GRUB config file:**
+```bash
+grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+**Enable Network**
+```bash
+systemctl enable NetworkManager
+```
