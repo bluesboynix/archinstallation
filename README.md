@@ -1,6 +1,6 @@
 # Arch Linux Installation Scripts
 
-My scripts and instructions to automate and guide the installation of Arch Linux.
+My instructions to instal Arch Linux.
 
 ---
 
@@ -39,17 +39,17 @@ mkdir -p /mnt/boot
 mount /dev/sdX1 /mnt/boot
 ```
 
-### Install base packages:
+**Install base packages:**
 ```bash
 pacstrap /mnt base base-devel linux linux-headers linux-firmware sudo grub neovim curl git wget
 ```
 
-### Generate fstab:
+**Generate fstab:**
 ```bash
 genfstab -U /mnt >> /mnt/etc/fstab
 ```
 
-### Chroot into new system:
+**Chroot into new system:**
 ```bash
 arch-chroot /mnt
 ```
