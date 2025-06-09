@@ -124,3 +124,88 @@ grub-mkconfig -o /boot/grub/grub.cfg
 ```bash
 systemctl enable NetworkManager
 ```
+## 3. Post Installation
+**Setup yay (AUR helper)**
+```bash
+sudo pacman -S --needed git base-devel
+cd /tmp
+git clone https://aur.archlinux.org/yay.git
+cd yay
+makepkg -si
+```
+
+**Install Core Hyprland Ecosystem**
+```bash
+pacman -S hyprland hyprpicker hypridle hyprlock hyprpaper xdg-desktop-portal-hyprland
+yay -S hyprshot
+```
+
+**Install Tools and Utilities**
+```bash
+pacman -S rofi-wayland waybar yazi emacs zathura zathura-pdf-mupdf foot vlc
+yay -S wlogout 
+```
+
+**Set zathura default pdf reader**
+```bash
+xdg-mime default org.pwmt.zathura.desktop application/pdf
+```
+
+**Setup PipeWire Audio**
+```bash
+pacman -S pipewire pipewire-pulse wireplumber
+
+### After user creation
+systemctl --user enable --now pipewire pipewire-pulse wireplumber
+```
+
+**Install Zsh and oh-my-zsh (after user creation)**
+```bash
+pacman -S zsh
+
+### Afer user creation oh-my-zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+**Fonts**
+```bash
+yay -S ttf-cantarell
+pacman -S ttf-liberation \
+ttf-hack-nerd \
+ttf-fira-code-nerd \
+ttf-nerd-fonts-symbols \
+ttf-nerd-fonts-symbols-common \
+ttf-nerd-fonts-symbols-mono
+
+### Optionally clear font cache
+fc-cache -fv
+```
+**Another useful tools**
+- cliphist - clipboard manager
+- firefox, google-chrome (AUR)
+- thunar - file manager
+- swaync - notification
+
+**user creation**
+```bash
+useradd -m -G wheel,users,audio,vido,storage -s /bin/zsh ## assuming zsh already installed
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
