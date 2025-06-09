@@ -18,13 +18,14 @@ The installation is split into three phases:
 
 Using [`cfdisk`](https://man.archlinux.org/man/cfdisk.8) for partitioning the target disk safely. fdisk also available.
 
-**Partition layout example:**
+**Partition layout example UEFI:**
 
 | Partition | Size   | Type             | Flags       |
 | --------- | ------ | ---------------- | ----------- |
 | `/dev/sdX1` | 1 GB   | EFI System       | boot, esp   |
 | `/dev/sdX2` | 2 GB   | Linux Swap       | swap        |
 | `/dev/sdX3` | Rest   | Linux filesystem |             |
+Note: for MBR, skip efi and follow /dev/sdX1 as / and /dev/sdX2 as swap
 
 **Formatting and mounting:**
 
@@ -110,6 +111,11 @@ mount /dev/sda1 /boot/efi
 **Install GRUB:**
 ```bash
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+```
+
+**If MBR**
+```bash
+grub-install --target=i386-pc /dev/sda
 ```
 
 **Generate GRUB config file:**
