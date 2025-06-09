@@ -26,7 +26,7 @@ Using [`cfdisk`](https://man.archlinux.org/man/cfdisk.8) for partitioning the ta
 | `/dev/sdX2` | 2 GB   | Linux Swap       | swap        |
 | `/dev/sdX3` | Rest   | Linux filesystem |             |
 
-**Commands for formatting and mounting:**
+**Formatting and mounting:**
 
 ```bash
 mkfs.fat -F32 /dev/sdX1
@@ -37,12 +37,19 @@ mkfs.ext4 /dev/sdX3
 mount /dev/sdX3 /mnt
 mkdir -p /mnt/boot
 mount /dev/sdX1 /mnt/boot
+```
 
 ### Install base packages:
+```bash
 pacstrap /mnt base base-devel linux linux-headers linux-firmware sudo grub neovim curl git wget
+```
 
 ### Generate fstab:
+```bash
 genfstab -U /mnt >> /mnt/etc/fstab
+```
 
 ### Chroot into new system:
+```bash
 arch-chroot /mnt
+```
