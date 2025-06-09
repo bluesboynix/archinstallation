@@ -1,6 +1,6 @@
-# Arch Linux Installation Scripts
+# Arch Linux Installation
 
-My instructions to instal Arch Linux.
+My Arch Linux installation quick step.
 
 ---
 
@@ -9,23 +9,20 @@ My instructions to instal Arch Linux.
 The installation is split into three phases:
 
 1. **Pre-Installation** (manual partitioning recommended)
-2. **Chroot Configuration**
+2. **After arch-chroot Setup**
 3. **Post-Installation** (desktop environment and apps)
 
 ---
 
-## Pre-Installation (Manual)
+## 1. Pre-Installation (Manual)
 
 Using [`cfdisk`](https://man.archlinux.org/man/cfdisk.8) for partitioning the target disk safely. fdisk also available.
 
 **Partition layout example UEFI:**
-
-| Partition | Size   | Type             | Flags       |
-| --------- | ------ | ---------------- | ----------- |
-| `/dev/sdX1` | 1 GB   | EFI System       | boot, esp   |
-| `/dev/sdX2` | 2 GB   | Linux Swap       | swap        |
-| `/dev/sdX3` | Rest   | Linux filesystem |             |
-Note: for MBR, skip efi and follow /dev/sdX1 as / and /dev/sdX2 as swap
+- /dev/sdX1 - 1 GB, EFI System
+- /dev/sdX2 - 2 GB, Linux Swap
+- /dev/sdX3 - Rest, Linux filesystem
+- Note: for MBR, skip efi and follow /dev/sdX1 as / and /dev/sdX2 as swap
 
 **Formatting and mounting:**
 
@@ -55,7 +52,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 arch-chroot /mnt
 ```
 
-## Arch Linux Post-chroot Setup Steps
+## 2. After arch-chroot Setup
 **Set the Timezone**
 ```bash
 ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
