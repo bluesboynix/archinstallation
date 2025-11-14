@@ -31,6 +31,7 @@
   - [PipeWire + WirePlumber](#pipewire--wireplumber)
   - [Ly Display Manager](#display-manager-ly)
   - [Fonts](#fonts)
+  - [Bluetooth Setup](#Bluetooth-Setup)
   - [Hyprland Setup](#hyprland-setup)
   
 ---
@@ -265,6 +266,39 @@ systemctl enable ly
 ```
 pacman -S ttf-hack-nerd ttf-nerd-fonts-symbols ttf-dejavu ttf-font-awesome
 ```
+
+# Bluetooth Setup
+
+Install Bluetooth packages:
+```
+pacman -S bluez bluez-utils
+```
+
+Enable and start Bluetooth service:
+```
+systemctl enable bluetooth
+systemctl start bluetooth
+```
+
+To pair devices using bluetoothctl:
+```
+bluetoothctl
+power on
+agent on
+default-agent
+scan on
+# wait for device MAC
+pair XX:XX:XX:XX:XX:XX
+trust XX:XX:XX:XX:XX:XX
+connect XX:XX:XX:XX:XX:XX
+```
+
+Or Just using blueTui
+```
+pacman -S bluetui
+```
+
+Then run bluetui.
 
 # Hyprland Setup
 
