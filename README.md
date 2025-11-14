@@ -1,210 +1,286 @@
-# Arch Linux Installation
+# Arch Linux Installation Guide (UEFI + BIOS + GRUB + Dual Boot)
 
-My Arch Linux installation quick step.
-
----
-
-## Overview
-
-The installation is split into three phases:
-
-1. **Pre-Installation** (manual partitioning recommended)
-2. **After arch-chroot Setup**
-3. **Post-Installation** (desktop environment and apps)
+![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?logo=arch-linux&logoColor=white)
+![GRUB](https://img.shields.io/badge/GRUB-BB00FF?logo=gnu-grub&logoColor=white)
+![UEFI](https://img.shields.io/badge/UEFI-000000?logo=ubuntu&logoColor=white)
+![Dual Boot](https://img.shields.io/badge/Dual_Boot-blue)
 
 ---
 
-## 1. Pre-Installation (Manual)
+## Table of Contents
+- [1. Boot Into Arch ISO](#1-boot-into-arch-iso)
+- [2. Connect to Internet](#2-connect-to-internet)
+- [3. Update System Clock](#3-update-system-clock)
+- [4. Partitioning](#4-partitioning)
+  - [UEFI Partition Scheme](#uefi-partition-scheme)
+  - [BIOS-MBR Partition Scheme](#bioslegacy-mbr-partition-scheme)
+- [5. Mount Partitions](#5-mount-partitions)
+- [6. Install Base System](#6-install-base-system)
+- [7. Generate fstab](#7-generate-fstab)
+- [8. Chroot](#8-chroot)
+- [9. System Configuration](#9-time-locale-hostname)
+- [10. Set Root Password](#10-set-root-password)
+- [11. Enable Network](#11-enablenetworkmanager)
+- [12. Install GRUB](#12-install-grub)
+- [13. Dual Boot Setup](#13-dual-boot-with-windows)
+- [14. Unmount & Reboot](#14-unmount--reboot)
+- [Post Installation Setup](#post-installation-setup)
+  - [Create User](#create-new-user)
+  - [Utilities](#install-useful-utilities)
+  - [AUR Helper yay](#install-aur-helper-yay)
+  - [PipeWire + WirePlumber](#pipewire--wireplumber)
+  - [Ly Display Manager](#display-manager-ly)
+  - [Fonts](#fonts)
+  - [Hyprland Setup](#hyprland-setup)
+  
+---
 
-Using [`cfdisk`](https://man.archlinux.org/man/cfdisk.8) for partitioning the target disk safely. fdisk also available.
-
-**Partition layout example UEFI:**
-- /dev/sdX1 - 1 GB, EFI System
-- /dev/sdX2 - 2 GB, Linux Swap
-- /dev/sdX3 - Rest, Linux filesystem
-- Note: for MBR, skip efi and follow /dev/sdX1 as / and /dev/sdX2 as swap
-
-**Formatting and mounting:**
-
+# 1. Boot Into Arch ISO
 ```bash
-mkfs.fat -F32 /dev/sdX1
-mkswap /dev/sdX2
-swapon /dev/sdX2
-mkfs.ext4 /dev/sdX3
+ls /sys/firmware/efi/efivars
+```
+If present → UEFI mode.
 
-mount /dev/sdX3 /mnt
-mkdir -p /mnt/boot
-mount /dev/sdX1 /mnt/boot
+If absent → BIOS mode.
+
+# 2. Connect to Internet
+Wi-Fi
+```
+iwctl
+station wlan0 connect "SSID"
+```
+LAN
+
+Works automatically.
+
+---
+# 3. Update System Clock
+```
+timedatectl set-ntp true
 ```
 
-**Install base packages:**
-```bash
-pacstrap /mnt base base-devel linux linux-headers linux-firmware sudo grub nano git amd-ucode
+---
+# 4. Partitioning
+
+## UEFI Partition Scheme
+| Partition | Size      | FS    | Purpose              |
+| --------- | --------- | ----- | -------------------- |
+| /dev/sda1 | 300–500MB | FAT32 | EFI System Partition |
+| /dev/sda2 | 20–50GB   | ext4  | Root `/`             |
+| /dev/sda3 | Remaining | ext4  | Home                 |
+| /dev/sdaX | Optional  | swap  | Swap                 |
+
+Format:
+```
+mkfs.fat -F32 /dev/sda1
+mkfs.ext4 /dev/sda2
+mkfs.ext4 /dev/sda3
+mkswap /dev/sda4
 ```
 
-**Generate fstab:**
-```bash
+## BIOS/Legacy (MBR) Partition Scheme
+| Partition | Size      | FS        |
+| --------- | --------- | --------- |
+| /dev/sda1 | 1MB       | BIOS boot |
+| /dev/sda2 | 20–50GB   | ext4      |
+| /dev/sda3 | Remaining | ext4      |
+| /dev/sdaX | Optional  | swap      |
+
+Format:
+```
+mkfs.ext4 /dev/sda2
+mkfs.ext4 /dev/sda3
+mkswap /dev/sda4
+```
+---
+# 5. Mount Partitions
+
+UEFI:
+```
+mount /dev/sda2 /mnt
+mkdir -p /mnt/boot/efi
+mount /dev/sda1 /mnt/boot/efi
+```
+
+BIOS:
+```
+mount /dev/sda2 /mnt
+```
+
+Optional home:
+```
+mkdir /mnt/home
+mount /dev/sda3 /mnt/home
+```
+
+---
+# 6. Install Base System
+
+```
+pacstrap /mnt base linux linux-firmware networkmanager grub efibootmgr os-prober
+```
+
+---
+# 7. Generate fstab
+```
 genfstab -U /mnt >> /mnt/etc/fstab
 ```
 
-**Chroot into new system:**
-```bash
+---
+# 8. Chroot
+```
 arch-chroot /mnt
 ```
 
-## 2. After arch-chroot Setup
-**Set the Timezone**
-```bash
-ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
+---
+# 9. Time, Locale, Hostname
 ```
-
-**Generate the hardware clock:**
-```bash
+ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
 hwclock --systohc
 ```
 
-**Localization**
-nvim /etc/locale.gen
-    en_US.UTF-8 UTF-8
-
-**Generate locales:**
-```bash
-locale-gen
+Locale:
+```
+nano /etc/locale.gen
 ```
 
-**Create /etc/locale.conf and set your LANG:**
-```bash
+Uncomment:
+```
+en_US.UTF-8 UTF-8
+```
+
+Generate:
+```
+locale-gen
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
 ```
 
-**Set Hostname**
-```bash
-echo "myhostname" > /etc/hostname
+Hostname:
+```
+echo "archlinux" > /etc/hostname
 ```
 
-**Add matching entries in /etc/hosts:**
-```bash
-echo "127.0.0.1   localhost" >> /etc/hosts
-echo "::1         localhost" >> /etc/hosts
-echo "127.0.1.1   myhostname.localdomain myhostname" >> /etc/hosts
+---
+# 10. Set Root Password
 ```
-
-**Set Root Password**
-```bash
 passwd
 ```
 
-**Install and Configure Bootloader (GRUB)**
-```bash
-pacman -S grub efibootmgr mtools dosfstools
+---
+# 11. EnableNetworkManager
+```
+systemctl enable NetworkManager
 ```
 
-**Mount EFI partition (if not already mounted), e.g., if EFI is /dev/sda1:**
-```bash
-mkdir /boot/efi
-mount /dev/sda1 /boot/efi
-```
+---
+# 12. Install GRUB
 
-**Install GRUB:**
-```bash
-grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+UEFI:
 ```
-
-**If MBR**
-```bash
-grub-install --target=i386-pc /dev/sda
-```
-
-**Generate GRUB config file:**
-```bash
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-**Enable Network**
-```bash
-systemctl enable NetworkManager
+BIOS:
 ```
-## 3. Post Installation
-**Create admin user**
-```bash
-pacman -S zsh
-useradd -m -G wheel,users,audio,video -s /bin/zsh username
+grub-install --target=i386-pc /dev/sda
+grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+---
+# 13. Dual Boot with Windows
+
+Install:
+```
+pacman -S os-prober
+```
+
+Enable detection:
+```
+nano /etc/default/grub
+```
+
+Set:
+```
+GRUB_DISABLE_OS_PROBER=false
+```
+
+Update:
+```
+grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+---
+# 14. Unmount & Reboot
+```
+exit
+umount -R /mnt
+reboot
+```
+
+---
+
+# Post Installation Setup
+
+---
+
+# Create New User
+```
+useradd -m -G wheel -s /bin/bash username
 passwd username
+EDITOR=nano visudo
 ```
 
-**Setup yay (AUR helper)**
-```bash
-sudo pacman -S --needed git base-devel
+Uncomment:
+```
+%wheel ALL=(ALL) ALL
+```
+
+# Install Useful Utilities
+```
+pacman -S git base-devel neovim unzip p7zip
+```
+
+# Install AUR Helper (yay)
+```
+cd /opt
 git clone https://aur.archlinux.org/yay.git
+chown -R username:username yay
 cd yay
-makepkg -si
+sudo -u username makepkg -si
+```
+# PipeWire + WirePlumber
+```
+pacman -S pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber
+systemctl --user enable --now pipewire wireplumber
 ```
 
-**Install Core Hyprland Ecosystem**
-```bash
-pacman -S hyprland hyprpicker hypridle hyprlock hyprpaper xdg-desktop-portal-hyprland hyprshot foot
+# Display Manager (ly)
 ```
-
-**Install Tools and Utilities**
-```bash
-pacman -S rofi waybar
-yay -S wlogout 
-```
-**Setup PipeWire Audio**
-```bash
-pacman -S pipewire pipewire-pulse wireplumber
-
-### After user creation
-systemctl --user enable --now pipewire pipewire-pulse wireplumber
-```
-**Display Manager**
-```bash
 pacman -S ly
-sysytemctl enable ly
+systemctl enable ly
 ```
 
-**Some useful fonts Fonts**
-- ttf-cantarell
-- ttf-liberation
-- ttf-hack-nerd
-- ttf-fira-code
-- ttf-nerd-fonts-symbols
-- ttf-nerd-fonts-symbols-common
-- ttf-nerd-fonts-symbols-mono
-
-Optionally clear font cache
-```bash
-fc-cache -fv
+# Fonts
 ```
-**Useful tools**
-- clipboard manager - cliphist
-- file manager - thunar (gui), yazi (tui)
-- notification - swaync
-- Application launcher - rofi
-- file transfer - curl, wget
-- browsers - google-chrome (from AUR), firefox, nyxt
-- editor - emacs, neovim
-- pdf - zathura zathura-pdf-poppler
-- terminal - foot, kitty, alacritty, ghostty
-- media player - mpv, smplayer
-- gtk settings - nwg-look
+pacman -S ttf-hack-nerd ttf-nerd-fonts-symbols ttf-dejavu ttf-font-awesome
+```
 
+# Hyprland Setup
 
+Install Hyprland:
+```
+pacman -S hyprland hyprpaper hypridle hyprlock waybar wofi
+```
 
+Recommended Extras:
+```
+pacman -S kitty thunar polkit-gnome brightnessctl bluez bluez-utils
+systemctl enable bluetooth
+```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Create Config:
+```
+mkdir -p ~/.config/hypr
+cp /usr/share/hyprland/examples/hyprland.conf ~/.config/hypr/
+```
