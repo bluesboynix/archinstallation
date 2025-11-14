@@ -223,6 +223,15 @@ reboot
 
 # Post Installation Setup
 
+  - Create User
+  - Utilities
+  - AUR Helper yay
+  - PipeWire + WirePlumber
+  - Ly Display Manager
+  - Fonts
+  - Bluetooth
+  - Hyprland
+
 ---
 
 # Create New User
