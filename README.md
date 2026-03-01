@@ -33,6 +33,7 @@
   - [Fonts](#fonts)
   - [Bluetooth Setup](#Bluetooth-Setup)
   - [Hyprland Setup](#hyprland-setup)
+  - [Niri Setup](#Niri)
   
 ---
 
@@ -327,3 +328,5 @@ Create Config:
 mkdir -p ~/.config/hypr
 cp /usr/share/hyprland/examples/hyprland.conf ~/.config/hypr/
 ```
+#Niri
+Follow arch wiki. Need foot and rofi-wayland instead of default
