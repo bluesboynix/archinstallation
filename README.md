@@ -328,5 +328,5 @@ Create Config:
 mkdir -p ~/.config/hypr
 cp /usr/share/hyprland/examples/hyprland.conf ~/.config/hypr/
 ```
-#Niri
+# Niri
 Follow arch wiki. Need foot and rofi-wayland instead of default
