@@ -255,6 +255,7 @@ Uncomment:
 git clone https://github.com/bluesboynix/dotfiles.git
 ```
 
+Other usefull apps
 
 ```
 pacman -S neovim unzip p7zip emacs rofi-wayland foot zathura btop yazi
