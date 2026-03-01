@@ -119,7 +119,8 @@ mount /dev/sda3 /mnt/home
 # 6. Install Base System
 
 ```
-pacstrap /mnt base linux linux-firmware networkmanager grub efibootmgr os-prober
+pacstrap /mnt base base-devel linux linux-firmware amd-ucode networkmanager \
+grub efibootmgr dosfstools os-prober nano git curl wget mandb texinfo stow
 ```
 
 ---
@@ -192,7 +193,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 ---
 # 13. Dual Boot with Windows
 
-Install:
+Install os-prober (if not installed):
 ```
 pacman -S os-prober
 ```
@@ -248,8 +249,15 @@ Uncomment:
 ```
 
 # Install Useful Utilities
+
+## Dotfiles clone to home
 ```
-pacman -S git base-devel neovim unzip p7zip
+git clone https://github.com/bluesboynix/dotfiles.git
+```
+
+
+```
+pacman -S neovim unzip p7zip emacs rofi-wayland foot zathura btop yazi
 ```
 
 # Install AUR Helper (yay)
@@ -267,10 +275,7 @@ systemctl --user enable --now pipewire wireplumber
 ```
 
 # Display Manager (ly)
-```
-pacman -S ly
-systemctl enable ly
-```
+## follow https://wiki.archlinux.org/title/Ly
 
 # Fonts
 ```
@@ -329,4 +334,5 @@ mkdir -p ~/.config/hypr
 cp /usr/share/hyprland/examples/hyprland.conf ~/.config/hypr/
 ```
 # Niri
-Follow arch wiki. Need foot and rofi-wayland instead of default
+Follow arch wiki - https://wiki.archlinux.org/title/Niri
+Need foot and rofi-wayland instead of default
